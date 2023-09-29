@@ -1,82 +1,82 @@
+
 import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
-function TodoList() {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState('');
+const Home = () => {
+  // Estado para almacenar la lista de tareas
+  const [todos, setTodos] = useState([]);
+  // Estado para almacenar la nueva tarea ingresada por el usuario
+  const [newTodo, setNewTodo] = useState("");
 
-  // Función para cargar la lista de tareas desde el servidor
-  const fetchTasks = () => {
-    fetch('https://assets.breatheco.de/apis/fake/todos/user/valentinfr')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => setTasks(data))
-      .catch((error) => console.error('Error fetching tasks:', error));
-  };
-
+  // useEffect se utiliza para realizar una llamada a la API GET al cargar el componente
   useEffect(() => {
-    fetchTasks();
-  }, []); // El segundo argumento [] asegura que esta función se ejecute solo una vez al montar el componente
+    // Realiza una llamada a la API GET para obtener la lista de tareas del usuario
+    fetch('https://playground.4geeks.com/apis/fake/todos/user/martin')
+      .then(response => response.json()) // Convierte la respuesta en formato JSON
+      .then(data => setTodos(data)); // Actualiza el estado 'todos' con los datos obtenidos
+  }, []);
 
-  const addTask = () => {
-    if (newTask.trim() === '') return;
-    setTasks([...tasks, { label: newTask, done: false }]);
-    setNewTask('');
+  // Función para agregar una nueva tarea
+  const addTodo = () => {
+    // Realiza una llamada a la API PUT para agregar una nueva tarea
+    fetch('https://playground.4geeks.com/apis/fake/todos/user/martin', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ label: newTodo, done: false }), // Crea un objeto de tarea y lo convierte a JSON
+    })
+      .then(response => response.json()) // Convierte la respuesta en formato JSON
+      .then(data => {
+        // Actualiza la lista de tareas en el estado local
+        setTodos([...todos, { label: newTodo, done: false }]);
+        setNewTodo(''); // Limpia el campo de entrada después de agregar la tarea
+      });
   };
 
-  const deleteTask = (index) => {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
-  };
-
-  const toggleComplete = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].done = !updatedTasks[index].done;
-    setTasks(updatedTasks);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      addTask();
-    }
+  // Función para eliminar una tarea por su etiqueta
+  const borrar = (labelToDelete) => {
+    // Filtra la tarea a eliminar por su etiqueta y crea una nueva lista de tareas actualizada
+    const updatedTodos = todos.filter(todo => todo.label !== labelToDelete);
+    
+    // Realiza una llamada a la API PUT para actualizar la lista de tareas eliminando la tarea por su etiqueta
+    fetch('https://playground.4geeks.com/apis/fake/todos/user/martin', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedTodos), // Envía la lista actualizada como JSON
+    })
+      .then(response => response.json()) // Convierte la respuesta en formato JSON
+      .then(data => {
+        // Actualiza la lista de tareas en el estado local excluyendo la tarea eliminada por etiqueta
+        setTodos(updatedTodos);
+      });
   };
 
   return (
-    <div className="todo-container">
-      <h1>LISTA DE TAREAS</h1>
-      <p className="task-count">
-        Total de Tareas: <span>{tasks.length}</span>
-      </p>
-      <div>
-        <input
-          type="text"
-          placeholder="Nueva tarea"
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <button onClick={addTask}>Agregar</button>
-      </div>
+    <div>
+      <h1>Todo List</h1>
+      {/* Input para ingresar una nueva tarea */}
+      <input
+        type="text"
+        placeholder="Nueva tarea"
+        value={newTodo}
+        onChange={(e) => setNewTodo(e.target.value)} // Actualiza el estado 'newTodo' al escribir en el input
+      />
+      {/* Botón para agregar una nueva tarea */}
+      <button onClick={addTodo}>Agregar</button>
+      {/* Lista de tareas */}
       <ul>
-        {tasks.map((task, index) => (
-          <li key={index} className={task.done ? 'completed-task' : ''}>
-            <button onClick={() => toggleComplete(index)}>
-              <FontAwesomeIcon icon={faCheckCircle} />
-            </button>
-            <span className={task.done ? 'completed-text' : ''}>{task.label}</span>
-            <button onClick={() => deleteTask(index)}>
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
+        {todos.map((todo, index) => (
+          <li key={index}>
+            {todo.label}
+            {/* Botón para eliminar una tarea llamando a la función 'borrar' con la etiqueta de la tarea */}
+            <button onClick={() => borrar(todo.label)}>Eliminar</button>
           </li>
         ))}
       </ul>
     </div>
   );
-}
+};
 
-export default TodoList;
+export default Home;
