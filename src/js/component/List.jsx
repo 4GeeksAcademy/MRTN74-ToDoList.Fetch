@@ -1,18 +1,50 @@
 
 import React, { useState, useEffect } from 'react';
 
+const urlBase = 'https://playground.4geeks.com/apis/fake/todos/user/martin' 
+
 const Home = () => {
   // Estado para almacenar la lista de tareas
   const [todos, setTodos] = useState([]);
   // Estado para almacenar la nueva tarea ingresada por el usuario
   const [newTodo, setNewTodo] = useState("");
 
+  async function getTask() {
+   try {
+    let response = await fetch(urlBase)
+    let data = await response.json()
+    if (response.ok){
+      setTodos(data)
+    }
+    if(response.status == 404){
+      createUser()
+    }
+   } catch (error) {
+    console.log(error)
+   } 
+  }
+
+  async function createUser(){
+    try {
+      let response = await fetch(urlBase, {
+        method: 'POST',
+        headers: {
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify([])
+      })
+      if (response.ok){
+        getTask()
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   // useEffect se utiliza para realizar una llamada a la API GET al cargar el componente
   useEffect(() => {
     // Realiza una llamada a la API GET para obtener la lista de tareas del usuario
-    fetch('https://playground.4geeks.com/apis/fake/todos/user/martin')
-      .then(response => response.json()) // Convierte la respuesta en formato JSON
-      .then(data => setTodos(data)); // Actualiza el estado 'todos' con los datos obtenidos
+     getTask()
   }, []);
 
   // Función para agregar una nueva tarea
@@ -23,13 +55,14 @@ const Home = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ label: newTodo, done: false }), // Crea un objeto de tarea y lo convierte a JSON
+      body: JSON.stringify([...todos, newTodo]), // Crea un objeto de tarea y lo convierte a JSON
     })
       .then(response => response.json()) // Convierte la respuesta en formato JSON
       .then(data => {
         // Actualiza la lista de tareas en el estado local
-        setTodos([...todos, { label: newTodo, done: false }]);
-        setNewTodo(''); // Limpia el campo de entrada después de agregar la tarea
+        // setTodos([...todos, { label: newTodo, done: false }]);
+        getTask()
+        // setNewTodo(''); // Limpia el campo de entrada después de agregar la tarea
       });
   };
 
@@ -60,8 +93,8 @@ const Home = () => {
       <input
         type="text"
         placeholder="Nueva tarea"
-        value={newTodo}
-        onChange={(e) => setNewTodo(e.target.value)} // Actualiza el estado 'newTodo' al escribir en el input
+        value={newTodo.label}
+        onChange={(e) => setNewTodo({label:e.target.value, done:false})} // Actualiza el estado 'newTodo' al escribir en el input
       />
       {/* Botón para agregar una nueva tarea */}
       <button onClick={addTodo}>Agregar</button>
