@@ -50,7 +50,7 @@ const Home = () => {
   // Función para agregar una nueva tarea
   const addTodo = () => {
     // Realiza una llamada a la API PUT para agregar una nueva tarea
-    fetch('https://playground.4geeks.com/apis/fake/todos/user/martin', {
+    fetch(urlBase, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ const Home = () => {
     const updatedTodos = todos.filter(todo => todo.label !== labelToDelete);
     
     // Realiza una llamada a la API PUT para actualizar la lista de tareas eliminando la tarea por su etiqueta
-    fetch('https://playground.4geeks.com/apis/fake/todos/user/martin', {
+    fetch(urlBase, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -90,24 +90,26 @@ const Home = () => {
     <div>
       <h1>Todo List</h1>
       {/* Input para ingresar una nueva tarea */}
-      <input
-        type="text"
-        placeholder="Nueva tarea"
-        value={newTodo.label}
-        onChange={(e) => setNewTodo({label:e.target.value, done:false})} // Actualiza el estado 'newTodo' al escribir en el input
-      />
-      {/* Botón para agregar una nueva tarea */}
-      <button onClick={addTodo}>Agregar</button>
-      {/* Lista de tareas */}
-      <ul>
-        {todos.map((todo, index) => (
-          <li key={index}>
-            {todo.label}
-            {/* Botón para eliminar una tarea llamando a la función 'borrar' con la etiqueta de la tarea */}
-            <button onClick={() => borrar(todo.label)}>Eliminar</button>
+        <div className="container">
+        <input
+          type="text"
+         placeholder="Nueva tarea"
+         value={newTodo.label}
+          onChange={(e) => setNewTodo({label:e.target.value, done:false})} // Actualiza el estado 'newTodo' al escribir en el input
+       />
+        {/* Botón para agregar una nueva tarea */}
+        <button onClick={addTodo}>Agregar</button>
+       {/* Lista de tareas */}
+        <ul>
+         {todos.map((todo, index) => (
+           <li key={index}>
+              {todo.label}
+              {/* Botón para eliminar una tarea llamando a la función 'borrar' con la etiqueta de la tarea */}
+             <button onClick={() => borrar(todo.label)}>Eliminar</button>
           </li>
         ))}
-      </ul>
+        </ul>
+      </div>
     </div>
   );
 };

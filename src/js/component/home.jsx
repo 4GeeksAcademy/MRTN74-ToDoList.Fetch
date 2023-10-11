@@ -6,6 +6,7 @@ import List from './List.jsx'
 const Home = () => {
 	return (
 		<List />
+		
 	);
 };
 
